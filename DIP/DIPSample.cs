@@ -17,11 +17,11 @@ namespace DIP
         private int[][] labels;
         private int currentLabel;
 
-        public int[][] LabelComponents(int[][] image)
+        public int[][] LabelComponents(Bitmap image, int val)
         {
-            int height = image.Length;
-            int width = image[0].Length;
-
+            int height = image.Height;
+            int width = image.Width;
+            
             labels = new int[height][];
             for (int i = 0; i < height; i++)
             {
@@ -30,37 +30,52 @@ namespace DIP
 
             currentLabel = 1;
 
-            for (int i = 0; i < height; i++)
-            {
-                for (int j = 0; j < width; j++)
+            if(val == 4) { 
+                for (int i = 0; i < height; i++)
                 {
-                    if (image[i][j] == 1 && labels[i][j] == 0)
+                    for (int j = 0; j < width; j++)
                     {
-                        AssignLabel(image, i, j);
-                        currentLabel++;
+                        if (image.GetPixel(i, j) == Color.White && labels[i][j] == 0)
+                        {
+                            AssignLabelFour(image, i, j);
+                            currentLabel++;
+                        }
                     }
                 }
             }
-
+            if(val == 8)
+            {
+                for (int i = 0; i < height; i++)
+                {
+                    for (int j = 0; j < width; j++)
+                    {
+                        if (image.GetPixel(i, j) == Color.White && labels[i][j] == 0)
+                        {
+                            AssignLabelFour(image, i, j);
+                            currentLabel++;
+                        }
+                    }
+                }
+            }
             return labels;
         }
 
-        private void AssignLabel(int[][] image, int row, int col)
+        private void AssignLabelFour(Bitmap image, int row, int col)
         {
-            int height = image.Length;
-            int width = image[0].Length;
+            int height = image.Height;
+            int width = image.Width;
 
             if (row < 0 || row >= height || col < 0 || col >= width)
                 return;
 
-            if (image[row][col] == 1 && labels[row][col] == 0)
+            if (image.GetPixel(row,col) == Color.White && labels[row][col] == 0)
             {
                 labels[row][col] = currentLabel;
 
-                AssignLabel(image, row - 1, col); // North
-                AssignLabel(image, row, col + 1); // East
-                AssignLabel(image, row + 1, col); // South
-                AssignLabel(image, row, col - 1); // West
+                AssignLabelFour(image, row - 1, col); // North
+                AssignLabelFour(image, row, col + 1); // East
+                AssignLabelFour(image, row + 1, col); // South
+                AssignLabelFour(image, row, col - 1); // West
             }
         }
     }
@@ -1164,15 +1179,28 @@ namespace DIP
             {
                 if (cF.Focused)
                 {
+                    int ByteDepth = 1;
+                    PixelFormat pixelFormat = new PixelFormat();
+                    ColorPalette palette = null;
                     Bitmap originalImage = new Bitmap(cF.pBitmap);
                     ConnectedComponentLabeling ccl = new ConnectedComponentLabeling();
-                    int[][] labeledImage = ccl.LabelComponents(image);
-                    double dd = Convert.ToDouble(deg.textBox1.Text);
-                    Bitmap image = rotareImageOri(cF.pBitmap, dd);
+                    int[][] labeledImage = ccl.LabelComponents(originalImage,4);
+                    int size = labeledImage.Length;
+                    int nsize = labeledImage[0].Length;
+                    int[] result = new int[size * nsize];
+                    int write = 0;
+                    for (int i = 0; i < size; i++)
+                    {
+                        for (int z = 0; z < nsize; z++)
+                        {
+                            result[write++] = labeledImage[i][z];
+                        }
+                    }
+                    Bitmap image = array2bmp(result,ByteDepth,pixelFormat,palette);
                     MSForm childForm = new MSForm();
                     childForm.MdiParent = this;
                     childForm.pf1 = stStripLabel;
-                    childForm.pBitmap = new Bitmap(originalImage);
+                    childForm.pBitmap = new Bitmap(image);
                     childForm.Show();
                 }
             }
