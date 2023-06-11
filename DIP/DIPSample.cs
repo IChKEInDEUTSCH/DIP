@@ -43,7 +43,7 @@ namespace DIP
                     }
                 }
             }
-            if(val == 7)
+            if(val == 8)
             {
                 for (int i = 0; i < height; i++)
                 {
