@@ -1009,7 +1009,7 @@ namespace DIP
 
         private void filterToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+           
         }
 
         private void avergeToolStripMenuItem_Click(object sender, EventArgs e)
